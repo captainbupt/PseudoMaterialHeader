@@ -40,4 +40,14 @@ public class DefaultContentHandler implements ContentHandler {
     public boolean checkCanDoRefresh(MaterialHeaderLayout layout, View content, View header) {
         return checkContentCanBePulledDown(layout, content, header);
     }
+
+    @Override
+    public void onChange(float ratio, float offsetY) {
+        
+    }
+
+    @Override
+    public void onOffsetCalculated(int totalOffset) {
+
+    }
 }

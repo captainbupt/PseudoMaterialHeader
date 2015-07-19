@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.Scroller;
 import android.widget.TextView;
 
+import com.captainhwz.layout.R;
+
 public class MaterialHeaderLayout extends ViewGroup {
 
     final boolean DEBUG = true;
@@ -116,8 +118,14 @@ public class MaterialHeaderLayout extends ViewGroup {
             mContent = errorView;
             addView(mContent);
         }
+        if (mContent instanceof ContentHandler) {
+            mContentHandler = (ContentHandler) mContent;
+        }
         if (mHeaderView != null) {
             mHeaderView.bringToFront();
+            if (mHeaderView instanceof HeaderHandler) {
+                mHeaderHandler = (HeaderHandler) mHeaderView;
+            }
         }
         super.onFinishInflate();
     }
@@ -147,12 +155,15 @@ public class MaterialHeaderLayout extends ViewGroup {
             if (DEBUG && DEBUG_LAYOUT) {
                 Log.d(LOG_TAG, String.format("onMeasure, maxHeight: %s, minHeight: %s, margin: %s, %s, %s, %s", mHeaderMaxHeight, mHeaderMinHeight, lp.leftMargin, lp.topMargin, lp.rightMargin, lp.bottomMargin));
             }
+            if (mContentHandler != null) {
+                mContentHandler.onOffsetCalculated(mHeaderMaxHeight - mHeaderMinHeight);
+            }
         }
 
         if (mContent != null) {
             measureContentView(mContent, widthMeasureSpec, heightMeasureSpec);
+            MarginLayoutParams lp = (MarginLayoutParams) mContent.getLayoutParams();
             if (DEBUG && DEBUG_LAYOUT) {
-                MarginLayoutParams lp = (MarginLayoutParams) mContent.getLayoutParams();
                 Log.d(LOG_TAG, String.format("onMeasure content, width: %s, height: %s, margin: %s %s %s %s",
                         getMeasuredWidth(), getMeasuredHeight(),
                         lp.leftMargin, lp.topMargin, lp.rightMargin, lp.bottomMargin));
@@ -168,7 +179,7 @@ public class MaterialHeaderLayout extends ViewGroup {
         final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
                 getPaddingLeft() + getPaddingRight() + lp.leftMargin + lp.rightMargin, lp.width);
         final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
-                getPaddingTop() + getPaddingBottom() + lp.topMargin, lp.height);
+                getPaddingTop() + getPaddingBottom() + lp.topMargin + mHeaderMinHeight, lp.height);
 
         child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
     }
@@ -274,6 +285,21 @@ public class MaterialHeaderLayout extends ViewGroup {
                 }
 
                 if ((moveUp && canMoveUp) || moveDown) {
+                    // has reached the top
+                    if ((offsetY < 0 && mIndicator.reachMinHeight())) {
+                        if (DEBUG) {
+                            Log.v(LOG_TAG, String.format("has reached the top"));
+                        }
+                        return super.dispatchTouchEvent(e);
+                    }
+                    // has reached the top
+                    if ((offsetY > 0 && mIndicator.reachMaxHeight())) {
+                        if (DEBUG) {
+                            Log.v(LOG_TAG, String.format("has reached the bottom"));
+                        }
+                        return super.dispatchTouchEvent(e);
+                    }
+
                     Log.v(LOG_TAG, "move pos: " + offsetY + ", speed: " + offsetY / mIndicator.getOffsetTime());
                     if (Math.abs(offsetY / mIndicator.getOffsetTime()) > 2) {
                         if (offsetY > 0) {
@@ -302,20 +328,6 @@ public class MaterialHeaderLayout extends ViewGroup {
      * @param deltaY
      */
     private void movePos(float deltaY) {
-        // has reached the top
-        if ((deltaY < 0 && mIndicator.reachMinHeight())) {
-            if (DEBUG) {
-                Log.e(LOG_TAG, String.format("has reached the top"));
-            }
-            return;
-        }
-        // has reached the top
-        if ((deltaY > 0 && mIndicator.reachMaxHeight())) {
-            if (DEBUG) {
-                Log.e(LOG_TAG, String.format("has reached the bottom"));
-            }
-            return;
-        }
 
         int to = mIndicator.getCurrentPosY() + (int) deltaY;
 
@@ -338,12 +350,13 @@ public class MaterialHeaderLayout extends ViewGroup {
     }
 
     private void updatePos(int change) {
-        if (mHeaderView instanceof HeaderHandler)
-            ((HeaderHandler) mHeaderView).onChange(mIndicator.getCurrentPercent(), change);
+        if (mHeaderHandler != null)
+            mHeaderHandler.onChange(mIndicator.getCurrentPercent(), change);
+        if (mContentHandler != null)
+            mContentHandler.onChange(mIndicator.getCurrentPercent(), change);
         mHeaderView.offsetTopAndBottom(change);
         mContent.offsetTopAndBottom(change);
         invalidate();
-
     }
 
     private void sendCancelEvent() {
