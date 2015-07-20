@@ -2,7 +2,7 @@
 A library that simulated the material header. Guide by UltraPullToRefresh.
 
 ![](https://github.com/captainbupt/PseudoMaterialHeader/blob/master/screenrecord.gif)
-# Updata
+# Update
  * Added more callback functions to listener
  * Fixed a bugs, so that PullToRefresh can worked properly
 
