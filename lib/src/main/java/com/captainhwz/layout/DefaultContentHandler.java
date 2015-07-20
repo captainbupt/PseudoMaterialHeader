@@ -43,7 +43,7 @@ public class DefaultContentHandler implements ContentHandler {
 
     @Override
     public void onChange(float ratio, float offsetY) {
-        
+
     }
 
     @Override
