@@ -80,6 +80,16 @@ public class ViewPagerContentLayout extends LinearLayout implements ContentHandl
         return adapter.getItem(viewPager.getCurrentItem()).checkCanDoRefresh(frame, content, header);
     }
 
+    @Override
+    public void onChange(float ratio, float offsetY) {
+
+    }
+
+    @Override
+    public void onOffsetCalculated(int totalOffset) {
+
+    }
+
     static class MyViewPagerAdapter extends FragmentStatePagerAdapter {
 
         List<BaseFragment> mFragmentList;

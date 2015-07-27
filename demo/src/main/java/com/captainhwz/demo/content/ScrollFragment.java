@@ -25,4 +25,14 @@ public class ScrollFragment extends BaseFragment {
     public boolean checkCanDoRefresh(MaterialHeaderLayout frame, View content, View header) {
         return DefaultContentHandler.checkContentCanBePulledDown(frame, scrollView, header);
     }
+
+    @Override
+    public void onChange(float ratio, float offsetY) {
+
+    }
+
+    @Override
+    public void onOffsetCalculated(int totalOffset) {
+
+    }
 }
