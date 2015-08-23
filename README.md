@@ -1,5 +1,6 @@
 # PseudoMaterialHeader
 A library that simulated the material header. Guide by UltraPullToRefresh.
+The mechanism is similar to Android NestedScrolling and provided interface to make it compatible with any custom view.
 
 ![](https://github.com/captainbupt/PseudoMaterialHeader/blob/master/screenrecord.gif)
 # Update
